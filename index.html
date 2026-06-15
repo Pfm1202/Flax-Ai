@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FLAX AI ASSIST</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:          #0d1117;
+  --surface:     #161b27;
+  --surface-2:   #1c2333;
+  --purple:      #6d5aff;
+  --purple-mid:  #7c6aff;
+  --purple-dim:  rgba(109,90,255,0.18);
+  --border:      rgba(255,255,255,0.07);
+  --text:        #ffffff;
+  --text-sub:    rgba(255,255,255,0.55);
+  --text-dim:    rgba(255,255,255,0.32);
+  --red:         #ff4d6a;
+  --green:       #22c55e;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+  padding-bottom: 40px;
+}
+
+/* ── NAV ── */
+.nav {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.nav-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--purple-mid);
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.nav-logo {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--purple);
+  background: linear-gradient(135deg, #6d5aff, #a78bfa);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; font-weight: 800; color: #fff;
+  flex-shrink: 0;
+}
+.nav-right {
+  display: flex; align-items: center; gap: 10px;
+}
+.status-pill {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em;
+  color: var(--purple-mid);
+  background: var(--purple-dim);
+  border: 1px solid rgba(109,90,255,0.3);
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+.status-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ── PAGE ── */
+.page {
+  width: 100%;
+  max-width: 480px;
+  padding: 28px 18px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ── HERO ── */
+.hero-logo {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6d5aff, #a78bfa);
+  border: 3px solid var(--purple);
+  box-shadow: 0 0 0 6px rgba(109,90,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; font-weight: 900; color: #fff;
+  flex-shrink: 0;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--purple);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  padding: 7px 16px;
+  border-radius: 999px;
+  align-self: flex-start;
+}
+.hero-title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--purple-mid);
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+}
+.hero-sub {
+  font-size: 1rem;
+  color: var(--text-sub);
+  line-height: 1.55;
+  margin-top: -8px;
+}
+
+/* ── MAIN CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.card-head { font-size: 1.35rem; font-weight: 700; color: var(--text); }
+.card-desc { font-size: 0.88rem; color: var(--text-sub); line-height: 1.5; margin-top: -8px; }
+
+/* ── ORB ── */
+.orb-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0 6px;
+}
+.orb {
+  width: 110px; height: 110px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6d5aff, #a78bfa, #6d5aff);
+  background-size: 200% 200%;
+  animation: orb-idle 4s ease-in-out infinite;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  box-shadow: 0 0 30px rgba(109,90,255,0.35), 0 0 0 8px rgba(109,90,255,0.1);
+  transition: all 0.4s;
+  cursor: default;
+}
+@keyframes orb-idle {
+  0%,100% { background-position:0% 50%; box-shadow:0 0 30px rgba(109,90,255,0.35),0 0 0 8px rgba(109,90,255,0.1); }
+  50%      { background-position:100% 50%; box-shadow:0 0 45px rgba(124,106,255,0.5),0 0 0 12px rgba(109,90,255,0.15); }
+}
+.orb-inner {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; font-weight: 900; color: var(--purple-mid);
+  font-family: 'Inter', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* orb states */
+.orb.listening {
+  background: linear-gradient(135deg, #22c55e, #00e0a0);
+  animation: orb-listen 0.8s ease-in-out infinite alternate;
+  box-shadow: 0 0 35px rgba(34,197,94,0.5), 0 0 0 10px rgba(34,197,94,0.1);
+}
+@keyframes orb-listen { from{transform:scale(1)} to{transform:scale(1.06)} }
+
+.orb.thinking {
+  background: linear-gradient(135deg, #a855f7, #6d5aff, #ec4899);
+  animation: orb-think 1.5s ease-in-out infinite;
+  box-shadow: 0 0 35px rgba(168,85,247,0.5), 0 0 0 10px rgba(168,85,247,0.12);
+}
+@keyframes orb-think { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(180deg)} }
+
+.orb.speaking {
+  background: linear-gradient(135deg, #6d5aff, #a78bfa);
+  animation: orb-speak 0.5s ease-in-out infinite alternate;
+  box-shadow: 0 0 40px rgba(109,90,255,0.6), 0 0 0 12px rgba(109,90,255,0.15);
+}
+@keyframes orb-speak { from{transform:scale(1)} to{transform:scale(1.05)} }
+
+/* state label */
+.state-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.state-label.s-listen { color: var(--green); }
+.state-label.s-think  { color: #a855f7; }
+.state-label.s-speak  { color: var(--purple-mid); }
+
+/* wave bars */
+.wave-bars {
+  display: flex; align-items: center; gap: 3px;
+  height: 28px; opacity: 0; transition: opacity 0.3s;
+}
+.wave-bars.active { opacity: 1; }
+.wave-bars span {
+  display: block; width: 3px; border-radius: 2px;
+  background: var(--purple-mid);
+  animation: wave 0.8s ease-in-out infinite;
+  min-height: 3px;
+}
+.wave-bars span:nth-child(1){animation-delay:0s}
+.wave-bars span:nth-child(2){animation-delay:0.1s}
+.wave-bars span:nth-child(3){animation-delay:0.2s}
+.wave-bars span:nth-child(4){animation-delay:0.3s}
+.wave-bars span:nth-child(5){animation-delay:0.4s}
+.wave-bars span:nth-child(6){animation-delay:0.3s}
+.wave-bars span:nth-child(7){animation-delay:0.2s}
+.wave-bars span:nth-child(8){animation-delay:0.1s}
+.wave-bars span:nth-child(9){animation-delay:0s}
+@keyframes wave { 0%,100%{height:3px} 50%{height:24px} }
+
+/* ── DISPLAY BOX (transcript) ── */
+.display-box {
+  background: var(--surface-2);
+  border: 1.5px solid rgba(109,90,255,0.3);
+  border-radius: 14px;
+  padding: 14px 16px;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.2s;
+}
+.display-box.active { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(109,90,255,0.12); }
+
+.you-row {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex; align-items: center; gap: 6px;
+}
+.you-row .you-tag {
+  background: var(--purple-dim);
+  border: 1px solid rgba(109,90,255,0.3);
+  color: var(--purple-mid);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+}
+.you-text { font-size: 0.82rem; color: var(--text-sub); }
+.ai-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 2px 0;
+}
+.ai-row .ai-tag {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em;
+  color: var(--purple-mid);
+  background: var(--purple-dim);
+  border: 1px solid rgba(109,90,255,0.3);
+  border-radius: 4px;
+  padding: 1px 6px;
+  display: inline-block;
+  margin-bottom: 5px;
+}
+.ai-text {
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.55;
+}
+
+/* ── MIC BUTTON ── */
+.mic-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+#mic-btn {
+  width: 100%;
+  height: 56px;
+  border: none;
+  border-radius: 14px;
+  background: var(--purple);
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  letter-spacing: 0.02em;
+  transition: background .2s, transform .15s, box-shadow .2s;
+}
+#mic-btn:hover {
+  background: var(--purple-mid);
+  box-shadow: 0 6px 24px rgba(109,90,255,0.38);
+  transform: translateY(-1px);
+}
+#mic-btn:active { transform: translateY(0); }
+#mic-btn.active {
+  background: #16803a;
+  box-shadow: 0 6px 24px rgba(34,197,94,0.35);
+  animation: none;
+}
+
+/* ── TEXT INPUT ROW ── */
+.text-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface-2);
+  border: 1.5px solid rgba(109,90,255,0.35);
+  border-radius: 14px;
+  padding: 0 14px;
+  height: 52px;
+  transition: border-color .2s, box-shadow .2s;
+}
+.text-input-row:focus-within {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(109,90,255,0.15);
+}
+.text-input-row i { color: var(--text-dim); font-size: 0.95rem; flex-shrink: 0; }
+.text-input-row input {
+  flex: 1; background: transparent; border: none; outline: none;
+  font-family: 'Inter', sans-serif; font-size: 0.95rem; color: var(--text);
+}
+.text-input-row input::placeholder { color: var(--text-dim); }
+#send-btn {
+  width: 34px; height: 34px; border-radius: 8px; border: none;
+  background: var(--purple); color: #fff; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background .2s;
+}
+#send-btn:hover { background: var(--purple-mid); }
+#send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── VOICE CONTROLS ── */
+.how-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 18px;
+}
+.how-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.voice-row {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.vc-label {
+  font-size: 0.72rem; font-weight: 600; color: var(--text-dim);
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.vc-select {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid rgba(109,90,255,0.3);
+  color: var(--text-sub);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  border-radius: 8px;
+  padding: 6px 10px;
+  outline: none; cursor: pointer;
+  min-width: 0;
+}
+.vc-select option { background: var(--surface-2); }
+
+/* ── ACTIONS ── */
+.actions {
+  display: flex; gap: 10px;
+}
+.btn-join {
+  flex: 1; height: 48px;
+  border: 1.5px solid var(--purple);
+  border-radius: 12px;
+  background: var(--purple-dim);
+  color: var(--purple-mid);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem; font-weight: 600;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background .2s, box-shadow .2s;
+}
+.btn-join:hover { background: rgba(109,90,255,0.28); box-shadow: 0 4px 16px rgba(109,90,255,0.2); }
+
+.btn-clear {
+  height: 48px; padding: 0 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem; font-weight: 500;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 7px;
+  transition: border-color .2s, color .2s;
+}
+.btn-clear:hover { border-color: var(--red); color: var(--red); }
+
+/* ── STATUS ROW ── */
+.status-row {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 0.75rem; color: var(--text-dim); padding: 2px 0;
+}
+.status-row .s-dot {
+  display: inline-block; width: 7px; height: 7px;
+  border-radius: 50%; margin-right: 5px;
+  animation: pulse 2s infinite;
+}
+
+/* speed badge */
+.speed-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--purple-dim); border: 1px solid rgba(109,90,255,0.3);
+  color: var(--purple-mid); font-size: 0.7rem; font-weight: 700;
+  border-radius: 6px; padding: 3px 8px; cursor: pointer;
+  transition: background .2s; letter-spacing: 0.06em;
+}
+.speed-badge:hover { background: rgba(109,90,255,0.3); }
+
+.stop-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(255,77,106,0.1); border: 1px solid rgba(255,77,106,0.25);
+  color: var(--red); font-size: 0.7rem; font-weight: 700;
+  border-radius: 6px; padding: 3px 10px; cursor: pointer;
+  transition: background .2s; letter-spacing: 0.04em;
+}
+.stop-badge:hover { background: rgba(255,77,106,0.18); }
+
+.how-step {
+  display: flex; align-items: flex-start; gap: 12px;
+  margin-bottom: 12px; font-size: 0.83rem; color: var(--text-sub); line-height: 1.45;
+}
+.how-step:last-child { margin-bottom: 0; }
+.step-badge {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--purple-dim); border: 1.5px solid rgba(109,90,255,0.4);
+  color: var(--purple-mid); font-size: 0.7rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.how-step strong { color: var(--text); font-weight: 600; }
+.footer-note {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 0 18px;
+}
+
+/* ── TOAST ── */
+.notification {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--surface);
+  border: 1px solid var(--purple);
+  border-radius: 10px; padding: 10px 18px;
+  color: var(--purple-mid);
+  font-size: 0.82rem; font-weight: 600;
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  z-index: 9999;
+  transition: transform .35s cubic-bezier(.22,1,.36,1), opacity .35s;
+  opacity: 0; white-space: nowrap;
+}
+.notification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <span class="nav-title">
+    <div class="nav-logo">F</div>
+    FLAX AI ASSIST
+  </span>
+  <div class="nav-right">
+    <div class="status-pill">
+      <div class="status-dot" id="status-dot-nav"></div>
+      <span id="badge-txt">ONLINE</span>
+    </div>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero-logo">🤖</div>
+  <div class="badge"><i class="fas fa-microphone"></i> &nbsp;VOICE AI ASSISTANT</div>
+  <div class="hero-title">FLAX AI</div>
+  <div class="hero-sub">Your personal AI voice assistant by Flax Malcom. Tap the mic and speak — FLAX AI will listen and talk back to you.</div>
+
+  <!-- MAIN CARD -->
+  <div class="card">
+    <div>
+      <div class="card-head">Talk to FLAX AI</div>
+      <div class="card-desc">Tap the mic button to start speaking, or type below. FLAX AI will respond out loud.</div>
+    </div>
+
+    <!-- ORB -->
+    <div class="orb-wrap">
+      <div class="orb" id="orb">
+        <div class="orb-inner" id="orb-label">FX</div>
+      </div>
+      <div class="wave-bars" id="wave-bars">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <div class="state-label" id="state-label">Ready</div>
+    </div>
+
+    <!-- TRANSCRIPT -->
+    <div class="display-box" id="display-box">
+      <div class="you-row"><span class="you-tag">YOU</span> <span class="you-text" id="you-text">Say something…</span></div>
+      <div class="ai-divider"></div>
+      <div class="ai-row">
+        <div class="ai-tag">FLAX AI</div>
+        <div class="ai-text" id="ai-text">Hey! I'm FLAX AI, created by Flax Malcom. Tap the mic and talk to me!</div>
+      </div>
+    </div>
+
+    <!-- MIC -->
+    <div class="mic-wrap">
+      <button id="mic-btn" onclick="toggleListen()">
+        <i class="fas fa-microphone" id="mic-icon"></i>
+        <span id="mic-label">Tap to Speak</span>
+      </button>
+    </div>
+
+    <!-- TEXT INPUT -->
+    <div class="text-input-row">
+      <i class="fas fa-keyboard"></i>
+      <input type="text" id="txt-input" placeholder="Or type here and press Enter…" autocomplete="off"/>
+      <button id="send-btn" disabled onclick="sendText()">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+
+    <!-- STATUS ROW -->
+    <div class="status-row">
+      <span>
+        <span class="s-dot" id="s-dot" style="background:var(--green);box-shadow:0 0 6px var(--green)"></span>
+        <span id="s-label">Online</span>
+      </span>
+      <span id="clock">--:--:--</span>
+    </div>
+  </div>
+
+  <!-- VOICE SETTINGS -->
+  <div class="how-card">
+    <div class="how-title"><i class="fas fa-sliders-h" style="color:var(--purple-mid)"></i> Voice Settings</div>
+    <div class="voice-row">
+      <span class="vc-label">Voice</span>
+      <select class="vc-select" id="voice-select" onchange="updateVoice()"><option>Loading…</option></select>
+      <span class="speed-badge" id="speed-btn" onclick="cycleSpeed()">1× Speed</span>
+      <span class="stop-badge" onclick="stopSpeaking()"><i class="fas fa-stop"></i> Stop</span>
+    </div>
+  </div>
+
+  <!-- MIC FIX GUIDE -->
+  <div class="how-card">
+    <div class="how-title"><i class="fas fa-microphone-slash" style="color:var(--red)"></i> Mic not working?</div>
+    <div class="how-step">
+      <div class="step-badge">1</div>
+      <span>Install <strong>VS Code</strong> and the <strong>Live Server</strong> extension, then right-click the HTML file → <strong>Open with Live Server</strong></span>
+    </div>
+    <div class="how-step">
+      <div class="step-badge">2</div>
+      <span>Or open <strong>CMD</strong> in the file folder and run: <code style="background:var(--surface);padding:2px 7px;border-radius:5px;font-size:0.78rem">npx serve .</code> then open the link in Chrome</span>
+    </div>
+    <div class="how-step">
+      <div class="step-badge">3</div>
+      <span>Or just <strong>type</strong> in the text box — FLAX AI will still respond with voice!</span>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions">
+    <button class="btn-join" onclick="clearChat()">
+      <i class="fas fa-redo-alt"></i> New Chat
+    </button>
+    <button class="btn-clear" onclick="stopSpeaking()">
+      <i class="fas fa-volume-mute"></i> Mute
+    </button>
+  </div>
+
+  <div class="footer-note">FLAX AI ASSIST · Powered by Groq · Created by Flax Malcom</div>
+
+</div>
+
+<!-- TOAST -->
+<div class="notification" id="notification">
+  <i class="fas fa-check-circle"></i>
+  <span id="notif-text">Ready!</span>
+</div>
+
+<script>
+// ── API KEY ──
+const API_KEY = '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';
+
+// ── State ──
+let conversationHistory = [];
+let voices = [], selectedVoice = null;
+let speechRate = 1.0;
+const speeds = [0.85, 1.0, 1.15, 1.35];
+let speedIdx = 1;
+let recognition = null, isListening = false, isSpeaking = false, isThinking = false;
+
+// ── DOM ──
+const orbEl      = document.getElementById('orb');
+const orbLabel   = document.getElementById('orb-label');
+const stateLabel = document.getElementById('state-label');
+const badgeTxt   = document.getElementById('badge-txt');
+const waveBars   = document.getElementById('wave-bars');
+const youText    = document.getElementById('you-text');
+const aiText     = document.getElementById('ai-text');
+const displayBox = document.getElementById('display-box');
+const micBtn     = document.getElementById('mic-btn');
+const micIcon    = document.getElementById('mic-icon');
+const micLabel   = document.getElementById('mic-label');
+const txtInput   = document.getElementById('txt-input');
+const sendBtn    = document.getElementById('send-btn');
+const voiceSel   = document.getElementById('voice-select');
+const speedBtn   = document.getElementById('speed-btn');
+const sLabel     = document.getElementById('s-label');
+const sDot       = document.getElementById('s-dot');
+const statusDotNav = document.getElementById('status-dot-nav');
+
+// ── Clock ──
+function tick(){
+  const now=new Date();
+  let h=now.getHours(),m=String(now.getMinutes()).padStart(2,'0'),s=String(now.getSeconds()).padStart(2,'0');
+  const ap=h>=12?'PM':'AM'; h=h%12||12;
+  document.getElementById('clock').textContent=`${h}:${m}:${s} ${ap}`;
+}
+setInterval(tick,1000); tick();
+
+// ── Toast ──
+function showToast(msg, err=false){
+  const n=document.getElementById('notification');
+  document.getElementById('notif-text').textContent=msg;
+  n.style.borderColor=err?'var(--red)':'var(--purple)';
+  n.style.color=err?'var(--red)':'var(--purple-mid)';
+  n.querySelector('i').className=err?'fas fa-exclamation-circle':'fas fa-check-circle';
+  n.classList.add('show');
+  setTimeout(()=>n.classList.remove('show'),3000);
+}
+
+// ── Status ──
+function setStatus(state){
+  const map={
+    online:   {text:'Online',     color:'var(--green)'},
+    working:  {text:'Processing', color:'#f59e0b'},
+    speaking: {text:'Speaking',   color:'var(--purple-mid)'},
+    error:    {text:'Error',      color:'var(--red)'},
+    listen:   {text:'Listening',  color:'var(--green)'},
+  };
+  const s=map[state]||map.online;
+  sLabel.textContent=s.text;
+  sDot.style.background=s.color;
+  sDot.style.boxShadow=`0 0 6px ${s.color}`;
+}
+
+// ── System prompt ──
+const SYSTEM = `You are FLAX AI ASSIST, a smart friendly voice AI assistant created by Flax Malcom.
+Speak EXACTLY like Siri, Google Assistant, Gemini — warm, natural, concise, conversational.
+Rules:
+- Keep answers SHORT, 2-4 sentences max for voice
+- No markdown, no bullets, no asterisks — plain spoken sentences only
+- Be warm and personable like Siri
+- Who made you: "I was created by Flax Malcom."
+- Never say you are Claude, Llama, or from Anthropic/Meta/Groq
+- Your name is FLAX AI ASSIST
+- Greet warmly if greeted`;
+
+// ── Voices ──
+function loadVoices(){
+  voices=speechSynthesis.getVoices();
+  if(!voices.length) return;
+  voiceSel.innerHTML='';
+  const preferred=['Samantha','Google US English','Microsoft Aria','Zira','Karen','Moira','Daniel','Alex','Google UK English Female'];
+  const english=voices.filter(v=>v.lang.startsWith('en'));
+  const sorted=[...english].sort((a,b)=>{
+    const ai=preferred.findIndex(p=>a.name.includes(p));
+    const bi=preferred.findIndex(p=>b.name.includes(p));
+    if(ai===-1&&bi===-1)return 0; if(ai===-1)return 1; if(bi===-1)return -1; return ai-bi;
+  });
+  const list=sorted.length?sorted:voices;
+  list.forEach((v,i)=>{
+    const o=document.createElement('option');
+    o.value=i; o.textContent=v.name.replace('Microsoft ','').replace(' Online (Natural)','');
+    voiceSel.appendChild(o);
+  });
+  selectedVoice=list[0]; voiceSel._voices=list;
+}
+speechSynthesis.onvoiceschanged=loadVoices; loadVoices();
+
+function updateVoice(){
+  const i=parseInt(voiceSel.value);
+  selectedVoice=voiceSel._voices?voiceSel._voices[i]:voices[i];
+}
+function cycleSpeed(){
+  speedIdx=(speedIdx+1)%speeds.length;
+  speechRate=speeds[speedIdx];
+  speedBtn.textContent=speechRate+'× Speed';
+}
+
+// ── Orb state ──
+function setOrbState(state){
+  orbEl.className='orb';
+  stateLabel.className='state-label';
+  waveBars.className='wave-bars';
+  displayBox.classList.remove('active');
+  badgeTxt.textContent='ONLINE';
+  statusDotNav.style.background='var(--green)';
+
+  if(state==='listening'){
+    orbEl.classList.add('listening');
+    stateLabel.className='state-label s-listen';
+    stateLabel.textContent='Listening…';
+    badgeTxt.textContent='LISTENING';
+    orbLabel.textContent='●';
+    displayBox.classList.add('active');
+    setStatus('listen');
+    statusDotNav.style.background='var(--green)';
+  } else if(state==='thinking'){
+    orbEl.classList.add('thinking');
+    stateLabel.className='state-label s-think';
+    stateLabel.textContent='Thinking…';
+    badgeTxt.textContent='THINKING';
+    orbLabel.textContent='…';
+    setStatus('working');
+    statusDotNav.style.background='#f59e0b';
+  } else if(state==='speaking'){
+    orbEl.classList.add('speaking');
+    stateLabel.className='state-label s-speak';
+    stateLabel.textContent='Speaking…';
+    badgeTxt.textContent='SPEAKING';
+    waveBars.className='wave-bars active';
+    orbLabel.textContent='♪';
+    displayBox.classList.add('active');
+    setStatus('speaking');
+    statusDotNav.style.background='var(--purple-mid)';
+  } else {
+    stateLabel.textContent='Ready';
+    orbLabel.textContent='FX';
+    setStatus('online');
+  }
+}
+
+// ── TTS ──
+function speak(text){
+  if(!text) return;
+  speechSynthesis.cancel();
+  const clean=text.replace(/[*_`#•]/g,'').trim();
+  const utter=new SpeechSynthesisUtterance(clean);
+  if(selectedVoice) utter.voice=selectedVoice;
+  utter.rate=speechRate; utter.pitch=1.05; utter.volume=1;
+  isSpeaking=true; setOrbState('speaking');
+  utter.onend=()=>{ isSpeaking=false; setOrbState('idle'); };
+  utter.onerror=()=>{ isSpeaking=false; setOrbState('idle'); };
+  speechSynthesis.speak(utter);
+}
+function stopSpeaking(){ speechSynthesis.cancel(); isSpeaking=false; setOrbState('idle'); }
+
+// ── STT ──
+async function toggleListen(){
+  if(isSpeaking){ speechSynthesis.cancel(); isSpeaking=false; }
+  if(isListening){ recognition?.stop(); return; }
+
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){
+    showToast('Voice not supported — use Chrome/Edge',true);
+    fallbackInput();
+    return;
+  }
+
+  // Request mic permission explicitly first
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    stream.getTracks().forEach(t => t.stop()); // release immediately, just checking
+  } catch(permErr) {
+    showToast('Microphone blocked! See fix below.',true);
+    aiText.innerHTML = `<span style="color:var(--red);font-size:0.85rem">
+      <b>Mic is blocked.</b> Fix it one of these ways:<br><br>
+      <b>Option 1:</b> Run a local server:<br>
+      &nbsp;• Install <b>VS Code</b> + <b>Live Server</b> extension, then open the file with it<br>
+      &nbsp;• Or run: <code style="background:var(--surface-2);padding:2px 6px;border-radius:4px">npx serve .</code> in the file folder<br><br>
+      <b>Option 2:</b> In Chrome address bar type:<br>
+      &nbsp;<code style="background:var(--surface-2);padding:2px 6px;border-radius:4px">chrome://flags/#unsafely-treat-insecure-origin-as-secure</code><br>
+      &nbsp;Add your file path, enable, relaunch Chrome.<br><br>
+      <b>Option 3:</b> Use the text box below to type instead 👇
+    </span>`;
+    setOrbState('idle');
+    return;
+  }
+
+  recognition=new SR();
+  recognition.lang='en-US'; recognition.interimResults=true; recognition.continuous=false;
+  recognition.onstart=()=>{
+    isListening=true;
+    micBtn.classList.add('active');
+    micIcon.className='fas fa-stop';
+    micLabel.textContent='Tap to Stop';
+    setOrbState('listening');
+    youText.textContent='Listening…';
+  };
+  recognition.onresult=(e)=>{
+    let interim='',final='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal) final+=t; else interim+=t;
+    }
+    youText.textContent=final||interim;
+    if(final){ recognition.stop(); processInput(final.trim()); }
+  };
+  recognition.onerror=(e)=>{
+    isListening=false; micBtn.classList.remove('active');
+    micIcon.className='fas fa-microphone'; micLabel.textContent='Tap to Speak';
+    setOrbState('idle');
+    if(e.error==='not-allowed'||e.error==='permission-denied'){
+      showToast('Mic blocked — check instructions above',true);
+    } else if(e.error==='no-speech'){
+      showToast("Didn't hear anything — try again",true);
+    } else if(e.error==='network'){
+      showToast('Network error with speech API',true);
+    } else {
+      showToast('Mic error: '+e.error,true);
+    }
+  };
+  recognition.onend=()=>{
+    isListening=false; micBtn.classList.remove('active');
+    micIcon.className='fas fa-microphone'; micLabel.textContent='Tap to Speak';
+    if(!isThinking) setOrbState('idle');
+  };
+  recognition.start();
+}
+
+function fallbackInput(){
+  txtInput.focus();
+  showToast('Type your message below instead',false);
+}
+
+// ── Text input ──
+txtInput.addEventListener('input',()=>{ sendBtn.disabled=!txtInput.value.trim(); });
+txtInput.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendText(); } });
+function sendText(){
+  const msg=txtInput.value.trim();
+  if(!msg) return;
+  txtInput.value=''; sendBtn.disabled=true;
+  youText.textContent=msg;
+  processInput(msg);
+}
+
+// ── AI call ──
+async function processInput(text){
+  if(!text) return;
+  isThinking=true; setOrbState('thinking'); aiText.textContent='';
+  conversationHistory.push({role:'user',content:text});
+  try {
+    const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+API_KEY},
+      body:JSON.stringify({
+        model:'llama-3.3-70b-versatile',
+        max_tokens:300, temperature:0.85,
+        messages:[{role:'system',content:SYSTEM},...conversationHistory]
+      })
+    });
+    const data=await res.json();
+    if(data.error){
+      conversationHistory.pop(); isThinking=false;
+      aiText.textContent='Error: '+data.error.message;
+      setOrbState('idle'); showToast(data.error.message,true); return;
+    }
+    const reply=data.choices?.[0]?.message?.content||"Sorry, no response.";
+    conversationHistory.push({role:'assistant',content:reply});
+    isThinking=false; aiText.textContent=reply; speak(reply);
+  } catch(err){
+    conversationHistory.pop(); isThinking=false;
+    aiText.textContent='Network error: '+err.message;
+    setOrbState('idle'); showToast('Connection failed',true);
+  }
+}
+
+// ── Clear chat ──
+function clearChat(){
+  conversationHistory=[];
+  youText.textContent='Say something…';
+  aiText.textContent='Hey! I\'m FLAX AI, created by Flax Malcom. Tap the mic and talk to me!';
+  speechSynthesis.cancel(); setOrbState('idle');
+  showToast('Chat cleared!');
+}
+</script>
+</body>
+</html>
